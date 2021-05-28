@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Maps SDK for Web - Vector map</title>
+
+  <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.13.0/maps/maps.css'>
+  <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.13.0/maps/maps-web.min.js"></script>
+  <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.13.0/services/services-web.min.js"></script>
+
+</head>
+
+<body>
+  <style>
+    #marker {
+      background-image: url('/donut.png');
+      background-size: cover;
+      width: 30px;
+      height: 30px;
+    }
+  </style>
+  <input style="font-family:Noway; font-size:30px" type="text" id="myText" value="">
+  <button style="font-family:Noway; font-size:30px" onclick="searchDonuts()">Find Donuts!</button>
+  <div style="width:100vw; height: 80vh;" id='map'></div>
+  <div style="font-family:Noway; font-size:30px" id="result"></div>
+
+  <script>
+    var BERLIN = [13.404954, 52.520008]
+    var MADRID = [-3.703790, 40.416775]
+    var LA = [-118.243683, 34.052235]
+    var PHOENIX = [-112.074036, 33.448376]
+
+    var map = tt.map({
+      key: '<YOUR API KEY>', // <-- Get one for free at developer.tomtom.com
+      container: 'map',
+      center: PHOENIX,
+      pitch: 60,
+      zoom: 11
+    })
+
+    var handleSeveralResults = function (result) {
+      console.log(result)
+      if (result.results) {
+        const pois = result.results
+        pois.map((poi) => {
+          // add a marker
+          var customMarker = document.createElement('div');
+          customMarker.id = 'marker';
+          var marker = new tt.Marker({ element: customMarker }).setLngLat(poi.position).addTo(map);
+
+          var popupOffsets = {
+            top: [0, 0],
+            bottom: [0, -30],
+            left: [25, -30],
+            right: [-25, -30]
+          }
+          marker.setPopup(new tt.Popup({ offset: popupOffsets }).setText(poi.poi.name))
+        })
+
+      }
+
+    }
+
+    // Search for Donuts!
+    var searchDonuts = function () {
+      const API_KEY = '<Your API KEY HERE>'
+      tt.services.fuzzySearch({
+        key: API_KEY,
+        query: document.getElementById("myText").value,
+        boundingBox: map.getBounds()
+      })
+        .then(handleSeveralResults)
+    }
+
+  </script>
+</body>
+
+</html>
